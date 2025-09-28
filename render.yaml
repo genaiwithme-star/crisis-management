@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: crisiswatch-backend
+    env: node
+    plan: free
+    buildCommand: "cd backend && npm install"
+    startCommand: "cd backend && node server.js"
+    envVars:
+      - key: PORT
+        value: 8080
+      - key: TWITTER_BEARER_TOKEN
+        sync: false
+
+  - type: static_site
+    name: crisiswatch-frontend
+    env: static
+    plan: free
+    buildCommand: "cd frontend && npm install && npm run build"
+    publishDir: "frontend/dist"
+    envVars:
+      - key: VITE_API_URL
+        value: https://crisiswatch-backend.onrender.com
+
+  - type: worker
+    name: crisiswatch-twitter-fetcher
+    env: node
+    plan: free
+    buildCommand: "cd backend && npm install"
+    startCommand: "cd backend && node twitter_fetcher.js"
+    envVars:
+      - key: BACKEND
+        value: https://crisiswatch-backend.onrender.com
+      - key: TWITTER_BEARER_TOKEN
+        sync: false
